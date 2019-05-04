@@ -2,26 +2,42 @@ import argparse
 
 from SimpleWebSocketServer import WebSocket, SimpleWebSocketServer
 
+from models.peers import Client
+
+peers = dict()
+
 
 class SignalingServer(WebSocket):
     def handleClose(self):
         if is_debug:
             print("handleClose")
+        address = (self.address[0], self.address[1])
+        peers.pop(address, None)
         print(f"Client {self.address[0]}:{self.address[1]} disconnected")
 
     def handleMessage(self):
         if is_debug:
             print("handleMessage")
         print(f"New Message: {self.data}")
+        address = (self.address[0], self.address[1])
         if is_interactive:
             response = input("Response: ")
-            self.sendMessage(response)
         else:
-            self.sendMessage(f"Echo: {self.data}")
+            response = f"Echo: {self.data}"
+
+        for peer_address in peers:
+            if peer_address != address:
+                peers.get(peer_address)["socket"].sendMessage(response)
 
     def handleConnected(self):
         if is_debug:
             print("handleConnected")
+        address = (self.address[0], self.address[1])
+        peer = Client(self.address[0], self.address[1])
+        peers[address] = {
+            "peer": peer,
+            "socket": self
+        }
         print(f"Client {self.address[0]}:{self.address[1]} connected")
 
     def send(self, data):
