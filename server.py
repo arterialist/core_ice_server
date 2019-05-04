@@ -21,9 +21,9 @@ class SignalingServer(WebSocket):
         print(f"New Message: {self.data}")
         address = (self.address[0], self.address[1])
         if is_interactive:
-            response = input("Response: ")
+            response = input()
         else:
-            response = f"Echo: {self.data}"
+            response = self.data
 
         for peer_address in peers:
             if peer_address != address:
