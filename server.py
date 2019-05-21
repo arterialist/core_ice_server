@@ -38,15 +38,15 @@ class SignalingServer(WebSocket):
     def handleConnected(self):
         if is_debug:
             print("handleConnected")
-        if not is_relay:
-            if len(peers) == 2:
-                address = (self.address[0], self.address[1])
-                peer = Client(self.address[0], self.address[1])
-                peers[address] = {
-                    "peer": peer,
-                    "socket": self
-                }
-                print(f"Client {self.address[0]}:{self.address[1]} connected")
+        if len(peers) == 2 and is_relay:
+            return
+        address = (self.address[0], self.address[1])
+        peer = Client(self.address[0], self.address[1])
+        peers[address] = {
+            "peer": peer,
+            "socket": self
+        }
+        print(f"Client {self.address[0]}:{self.address[1]} connected")
 
     def send(self, data):
         self.sendMessage(str(data))
